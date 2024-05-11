@@ -8,7 +8,7 @@ const NoWaypointTextType = {
   [FilterType.PAST]: 'There are no past events now',
 };
 
-const createNoWaypointTemplate = (filterType = 'EVERYTHING') => {
+const createNoWaypointTemplate = (filterType = 'everything') => {
   const noWaypointTextValue = NoWaypointTextType[filterType];
   return `<p class="trip-events__msg">${noWaypointTextValue}</p>`;
 };

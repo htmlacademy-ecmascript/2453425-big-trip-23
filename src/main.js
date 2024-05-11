@@ -1,5 +1,10 @@
-import BoardPresenter from './presenter/board.js';
+import SortPresenter from './presenter/sort.js';
+import WaypointPresenter from './presenter/waypoint-list.js';
 
-const board = new BoardPresenter();
+const siteMainElement = document.querySelector('.trip-events');
 
-board.getBoardComponent();
+const sortPresenter = new SortPresenter(siteMainElement);
+const waypointPresenter = new WaypointPresenter(siteMainElement);
+
+sortPresenter.init();
+waypointPresenter.init();
