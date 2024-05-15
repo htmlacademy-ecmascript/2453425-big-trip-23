@@ -12,8 +12,15 @@ const data = [{
   dateTo: '2019-07-10T13:00:00.000Z',
   destination: 'bfa5cb75-a1fe-4b77-a83c-0e528e910e04',
   isFavorite: false,
+  // offers: [
+  //   'b4c3e4e6-9053-42ce-b747-e281314baa31'
+  // ],
   offers: [
-    'b4c3e4e6-9053-42ce-b747-e281314baa31'
+    {
+      id: 'b4c3e4e6-9053-42ce-b747-e281314baa31_taxi_1',
+      title: 'Upgrade to a business class',
+      price: 120,
+    }
   ],
   type: 'taxi'
 }];

@@ -14,6 +14,22 @@ import { getDuration } from '../util.js';
 //   type: 'taxi'
 // };
 
+const createOffersListItemTemplate = ({title, price}) =>
+  `<li class="event__offer">
+      <span class="event__offer-title">${title}</span>
+      &plus;&euro;&nbsp;
+      <span class="event__offer-price">${price}</span>
+    </li>`;
+
+const createOffersListTemplate = (offers) => {
+  const offersListItemsTemplate = offers.reduce((template, offer) =>
+    `${template} ${createOffersListItemTemplate(offer)}`, '');
+
+  return `<ul class="event__selected-offers">
+    ${offersListItemsTemplate}
+  </ul>`
+};
+
 const createWaypointTemplate = (waypointData) => {
   const eventDate = new Date(waypointData.dateFrom);
   const eventEndDate = new Date(waypointData.dateTo);
@@ -33,6 +49,7 @@ const createWaypointTemplate = (waypointData) => {
   const price = waypointData.basePrice;
   const type = waypointData.type;
   const destination = 'Amsterdam';
+  const offers = waypointData.offers;
 
   return (
     `<li class="trip-events__item">
@@ -54,13 +71,7 @@ const createWaypointTemplate = (waypointData) => {
           &euro;&nbsp;<span class="event__price-value">${price}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
-        <ul class="event__selected-offers">
-          <li class="event__offer">
-            <span class="event__offer-title">Order Uber</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">20</span>
-          </li>
-        </ul>
+        ${offers.length ? createOffersListTemplate(offers) : ''}
         <button class="event__favorite-btn ${favoriteClassName}" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
