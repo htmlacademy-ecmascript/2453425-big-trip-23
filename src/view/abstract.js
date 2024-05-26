@@ -1,10 +1,10 @@
-import {createElement} from '../render.js';
+import { createElement } from '../render.js';
 
-export default class Abstract {
+export default class AbstractView {
   #element = null;
 
   constructor() {
-    if (new.target === Abstract) {
+    if (new.target === AbstractView) {
       throw new Error('Can\'t instantiate Abstract, only concrete one.');
     }
   }

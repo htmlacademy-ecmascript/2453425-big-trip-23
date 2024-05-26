@@ -1,29 +1,8 @@
-// import WaypointSortView from '../view/sort.js';
-import WaypointListView from '../view/waypoint-list.js';
+import WaypointPresenter from './waypoint.js';
 import LoadingView from '../view/loading.js';
+import WaypointListView from '../view/waypoint-list.js';
 import NoWaypointView from '../view/no-waypoint.js';
-import WaypointView from '../view/waypoint.js';
-import {render} from '../render.js';
-
-const data = [{
-  id: 'f4b62099-293f-4c3d-a702-94eec4a2808c',
-  basePrice: 1100,
-  dateFrom: '2019-07-10T12:00:00.000Z',
-  dateTo: '2019-07-10T13:00:00.000Z',
-  destination: 'bfa5cb75-a1fe-4b77-a83c-0e528e910e04',
-  isFavorite: false,
-  // offers: [
-  //   'b4c3e4e6-9053-42ce-b747-e281314baa31'
-  // ],
-  offers: [
-    {
-      id: 'b4c3e4e6-9053-42ce-b747-e281314baa31_taxi_1',
-      title: 'Upgrade to a business class',
-      price: 120,
-    }
-  ],
-  type: 'taxi'
-}];
+import { render } from '../render.js';
 
 export default class WaypointListPresenter {
   #waypointListContainer = null;
@@ -32,16 +11,17 @@ export default class WaypointListPresenter {
   #loadingComponent = new LoadingView();
   #noWaypointComponent = new NoWaypointView();
 
-  #isLoading = false;
-  #waypoints = [];
+  #waypointsModel = null;
 
-  constructor(waypointListContainer, waypoints = data) {
+  #isLoading = false;
+
+  constructor(waypointListContainer, waypointsModel) {
     this.#waypointListContainer = waypointListContainer;
-    this.#waypoints = waypoints;
+    this.#waypointsModel = waypointsModel;
   }
 
-  get waypoints () {
-    return this.#waypoints;
+  get waypoints() {
+    return this.#waypointsModel.waypoints;
   }
 
   init() {
@@ -53,8 +33,23 @@ export default class WaypointListPresenter {
   }
 
   #renderWaypoint(waypoint) {
-    const waypointComponent = new WaypointView(waypoint);
-    render(waypointComponent, this.#waypointListComponent.element);
+    const destination = this.#waypointsModel.getDestinationById(
+      waypoint.destination
+    );
+    const offers = this.#waypointsModel.getOffersByType(waypoint.type);
+    const eventTypes = this.#waypointsModel.getOffersTypes();
+    const destinations = this.#waypointsModel.getDestinationsNames();
+
+    const waypointPresenter = new WaypointPresenter(
+      this.#waypointListComponent.element
+    );
+    waypointPresenter.init(
+      waypoint,
+      destination,
+      offers,
+      eventTypes,
+      destinations
+    );
   }
 
   #renderWaypoints(waypoints) {

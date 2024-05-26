@@ -1,64 +1,55 @@
 import AbstractView from './abstract.js';
 import { getDuration } from '../util.js';
 
-// const data = {
-//   id: 'f4b62099-293f-4c3d-a702-94eec4a2808c',
-//   basePrice: 1100,
-//   dateFrom: '2019-07-10T22:55:56.845Z',
-//   dateTo: '2019-07-11T11:22:13.375Z',
-//   destination: 'bfa5cb75-a1fe-4b77-a83c-0e528e910e04',
-//   isFavorite: true,
-//   offers: [
-//     'b4c3e4e6-9053-42ce-b747-e281314baa31'
-//   ],
-//   type: 'taxi'
-// };
-
-const createOffersListItemTemplate = ({title, price}) =>
+const createOffersListItemTemplate = ({ title, price }) =>
   `<li class="event__offer">
-      <span class="event__offer-title">${title}</span>
+    <span class="event__offer-title">${title}</span>
       &plus;&euro;&nbsp;
-      <span class="event__offer-price">${price}</span>
-    </li>`;
+    <span class="event__offer-price">${price}</span>
+  </li>`;
 
 const createOffersListTemplate = (offers) => {
-  const offersListItemsTemplate = offers.reduce((template, offer) =>
-    `${template} ${createOffersListItemTemplate(offer)}`, '');
+  if (!offers.length) {
+    return '';
+  }
+
+  const offersListItemsTemplate = offers.reduce(
+    (template, offer) => `${template} ${createOffersListItemTemplate(offer)}`,
+    ''
+  );
 
   return `<ul class="event__selected-offers">
-    ${offersListItemsTemplate}
-  </ul>`
+      ${offersListItemsTemplate}
+    </ul>`;
 };
 
-const createWaypointTemplate = (waypointData) => {
-  const eventDate = new Date(waypointData.dateFrom);
-  const eventEndDate = new Date(waypointData.dateTo);
-  const dateFrom = waypointData.dateFrom;
-  const dateTo = waypointData.dateTo;
-  const date = dateFrom.slice(0, 10);
-  const startDateTime = dateFrom.slice(0, 16);
-  const endDateTime = dateTo.slice(0, 16);
-  const startTime = dateFrom.slice(11, 16);
-  const endTime = dateTo.slice(11, 16);
-  const duration = getDuration(eventDate, eventEndDate);
-  const day = eventDate
-    .toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-    .split(',')[0];
-  const isFavorite = waypointData.isFavorite;
+const createWaypointTemplate = (waypoint, destination, offers) => {
+  const date = waypoint.dateFrom.toISOString().slice(0, 10);
+  const startDateTime = waypoint.dateFrom.toISOString().slice(0, 16);
+  const endDateTime = waypoint.dateTo.toISOString().slice(0, 16);
+  const startTime = waypoint.dateFrom.toISOString().slice(11, 16);
+  const endTime = waypoint.dateTo.toISOString().slice(11, 16);
+  const duration = getDuration(waypoint.dateFrom, waypoint.dateTo);
+  const isFavorite = waypoint.isFavorite;
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
-  const price = waypointData.basePrice;
-  const type = waypointData.type;
-  const destination = 'Amsterdam';
-  const offers = waypointData.offers;
+  const price = waypoint.basePrice;
+  const type = waypoint.type;
+  const destinationName = destination.name;
+  const day = waypoint.dateFrom.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
+  const selectedOffers = offers.filter((offer) =>
+    waypoint.offers.includes(offer.id)
+  );
 
-  return (
-    `<li class="trip-events__item">
+  return `<li class="trip-events__item">
       <div class="event">
         <time class="event__date" datetime="${date}">${day}</time>
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${destination}</h3>
+        <h3 class="event__title">${type} ${destinationName}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${startDateTime}">${startTime}</time>
@@ -71,7 +62,7 @@ const createWaypointTemplate = (waypointData) => {
           &euro;&nbsp;<span class="event__price-value">${price}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
-        ${offers.length ? createOffersListTemplate(offers) : ''}
+        ${createOffersListTemplate(selectedOffers)}
         <button class="event__favorite-btn ${favoriteClassName}" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -82,17 +73,26 @@ const createWaypointTemplate = (waypointData) => {
           <span class="visually-hidden">Open event</span>
         </button>
       </div>
-    </li>`
-  );
+    </li>`;
 };
 
 export default class WaypointView extends AbstractView {
-  constructor(waypointData) {
+  #waypoint = null;
+  #destination = null;
+  #offers = null;
+
+  constructor(waypoint, destination, offers) {
     super();
-    this.waypointData = waypointData;
+    this.#waypoint = waypoint;
+    this.#destination = destination;
+    this.#offers = offers;
   }
 
   get template() {
-    return createWaypointTemplate(this.waypointData);
+    return createWaypointTemplate(
+      this.#waypoint,
+      this.#destination,
+      this.#offers
+    );
   }
 }
