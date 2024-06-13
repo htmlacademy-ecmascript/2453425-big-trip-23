@@ -6,10 +6,8 @@ const getWaypoints = () => [
     'date_to': '2019-07-11T11:22:13.375Z',
     destination: 'cfe416cq-10xa-ye10-8077-2fs9a01edcab_1',
     'is_favorite': false,
-    offers: [
-      'b4c3e4e6-9053-42ce-b747-e281314baa31_taxi_1'
-    ],
-    type: 'taxi'
+    offers: ['b4c3e4e6-9053-42ce-b747-e281314baa31_taxi_1'],
+    type: 'taxi',
   },
   {
     id: 'f4b62099-293f-4c3d-a702-94eec4a2808c_B',
@@ -20,9 +18,9 @@ const getWaypoints = () => [
     'is_favorite': true,
     offers: [
       'b4c3e4e6-9053-42ce-b747-e281314baa31_flight_1',
-      'b4c3e4e6-9053-42ce-b747-e281314baa31_flight_2'
+      'b4c3e4e6-9053-42ce-b747-e281314baa31_flight_2',
     ],
-    type: 'flight'
+    type: 'flight',
   },
   {
     id: 'f4b62099-293f-4c3d-a702-94eec4a2808c_C',
@@ -31,10 +29,8 @@ const getWaypoints = () => [
     'date_to': '2019-08-20T11:22:13.375Z',
     destination: 'cfe416cq-10xa-ye10-8077-2fs9a01edcab_1',
     'is_favorite': false,
-    offers: [
-      'b4c3e4e6-9053-42ce-b747-e281314baa31_drive_1'
-    ],
-    type: 'drive'
+    offers: ['b4c3e4e6-9053-42ce-b747-e281314baa31_drive_1'],
+    type: 'drive',
   },
   {
     id: 'f4b62099-293f-4c3d-a702-94eec4a2808c_D',
@@ -45,9 +41,9 @@ const getWaypoints = () => [
     'is_favorite': true,
     offers: [
       'b4c3e4e6-9053-42ce-b747-e281314baa31_sightseeing_1',
-      'b4c3e4e6-9053-42ce-b747-e281314baa31_sightseeing_2'
+      'b4c3e4e6-9053-42ce-b747-e281314baa31_sightseeing_2',
     ],
-    type: 'sightseeing'
+    type: 'sightseeing',
   },
 ];
 

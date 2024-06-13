@@ -1,4 +1,4 @@
-import AbstractView from './abstract.js';
+import AbstractView from '../render/view/abstract.js';
 
 const createTripInfoTitleTemplate = (destinations) => {
   let title;
@@ -17,11 +17,11 @@ const createTripInfoTitleTemplate = (destinations) => {
 };
 
 const createTripInfoDatesTemplate = (dates) => {
-  const startDate = dates[0][0].toLocaleString('en-US', {
+  const startDate = dates[0].dateFrom.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
   });
-  const endDate = dates[[dates.length - 1]][1].toLocaleString('en-US', {
+  const endDate = dates[[dates.length - 1]].dateTo.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
   });
@@ -29,28 +29,38 @@ const createTripInfoDatesTemplate = (dates) => {
   return `<p class="trip-info__dates">${startDate}&nbsp;&mdash;&nbsp;${endDate}</p>`;
 };
 
-const createTripInfoTemplate = (destinations, dates, cost) =>
-  `<section class="trip-main__trip-info  trip-info">
+const createTripInfoTemplate = (waypoints) => {
+  const destinations = waypoints.map((waypoint) => waypoint.destination);
+  const dates = waypoints.map((waypoint) => ({
+    dateFrom: waypoint.dateFrom,
+    dateTo: waypoint.dateTo,
+  }));
+  const cost = waypoints.reduce(
+    (totalPrice, waypoint) => totalPrice + waypoint.price,
+    0
+  );
+  return `<section class="trip-main__trip-info  trip-info">
     <div class="trip-info__main">
       ${createTripInfoTitleTemplate(destinations)}
 
-      ${destinations.length ? createTripInfoDatesTemplate(dates) : ''}
+      ${waypoints.length ? createTripInfoDatesTemplate(dates) : ''}
     </div>
 
     <p class="trip-info__cost">
       Total: &euro;&nbsp;<span class="trip-info__cost-value">${cost}</span>
     </p>
   </section>`;
+};
 
 export default class TripInfoView extends AbstractView {
-  constructor(destinations, dates, cost) {
+  #waypoints = null;
+
+  constructor(waypoints) {
     super();
-    this.destinations = destinations;
-    this.dates = dates;
-    this.cost = cost;
+    this.#waypoints = waypoints;
   }
 
   get template() {
-    return createTripInfoTemplate(this.destinations, this.dates, this.cost);
+    return createTripInfoTemplate(this.#waypoints);
   }
 }

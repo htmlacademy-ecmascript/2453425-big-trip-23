@@ -1,64 +1,115 @@
 import WaypointPresenter from './waypoint.js';
+import newWaypointPresenter from './new-waypoint-presenter.js';
 import LoadingView from '../view/loading.js';
 import WaypointListView from '../view/waypoint-list.js';
 import NoWaypointView from '../view/no-waypoint.js';
-import { render } from '../render.js';
+import { remove, render } from '../render/render.js';
+import { FilterType, SortType, UpdateType, UserAction } from '../const.js';
+import { filter, sort } from '../util.js';
 
 export default class WaypointListPresenter {
   #waypointListContainer = null;
+
+  #waypointsModel = null;
+  #filterModel = null;
+  #sortModel = null;
+
+  #newWaypointPresenter = null;
 
   #waypointListComponent = new WaypointListView();
   #loadingComponent = new LoadingView();
   #noWaypointComponent = new NoWaypointView();
 
-  #waypointsModel = null;
+  #filterType = FilterType.EVERYTHING;
+  #sortType = SortType.DAY;
+  #waypointPresenters = new Map();
+  #isLoading = true;
 
-  #isLoading = false;
-
-  constructor(waypointListContainer, waypointsModel) {
+  constructor({
+    waypointListContainer,
+    waypointsModel,
+    filterModel,
+    sortModel,
+    onNewWaypointDestroy,
+  }) {
     this.#waypointListContainer = waypointListContainer;
     this.#waypointsModel = waypointsModel;
+    this.#filterModel = filterModel;
+    this.#sortModel = sortModel;
+
+    this.#newWaypointPresenter = new newWaypointPresenter({
+      waypointListContainer: this.#waypointListContainer,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewWaypointDestroy,
+    });
+
+    this.#waypointsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
+    this.#sortModel.addObserver(this.#handleModelEvent);
   }
 
   get waypoints() {
-    return this.#waypointsModel.waypoints;
+    this.#filterType = this.#filterModel.filter;
+    this.#sortType = this.#sortModel.sort;
+    const waypoints = this.#waypointsModel.waypoints;
+    const filteredWaypoints = filter[this.#filterType](waypoints);
+
+    const sortedWaypoints = filteredWaypoints.sort(sort[this.#sortType]);
+    return sortedWaypoints;
   }
 
   init() {
     this.#renderWaypointList();
   }
 
-  #renderLoading() {
-    render(this.#loadingComponent, this.#waypointListContainer);
+  createWaypoint() {
+    const offers = this.#waypointsModel.offers;
+    const destinations = this.#waypointsModel.destinations;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#sortModel.setSort(UpdateType.MAJOR, SortType.DAY);
+    this.#newWaypointPresenter.init({ offers, destinations });
   }
 
-  #renderWaypoint(waypoint) {
-    const destination = this.#waypointsModel.getDestinationById(
-      waypoint.destination
-    );
-    const offers = this.#waypointsModel.getOffersByType(waypoint.type);
-    const eventTypes = this.#waypointsModel.getOffersTypes();
-    const destinations = this.#waypointsModel.getDestinationsNames();
+  #handleModeChange = () => {
+    this.#newWaypointPresenter.destroy();
+    this.#waypointPresenters.forEach((presenter) => presenter.resetView());
+  };
 
-    const waypointPresenter = new WaypointPresenter(
-      this.#waypointListComponent.element
-    );
-    waypointPresenter.init(
-      waypoint,
-      destination,
-      offers,
-      eventTypes,
-      destinations
-    );
-  }
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType) {
+      case UserAction.ADD_WAYPOINT:
+        this.#waypointsModel.addWaypoint(updateType, update);
+        break;
+      case UserAction.DELETE_WAYPOINT:
+        this.#waypointsModel.deleteWaypoint(updateType, update);
+        break;
+      case UserAction.UPDATE_WAYPOINT:
+        this.#waypointPresenters.get(update.id).setSaving();
+        this.#waypointsModel.updateWaypoint(updateType, update);
+        break;
+    }
+  };
 
-  #renderWaypoints(waypoints) {
-    waypoints.forEach((waypoint) => this.#renderWaypoint(waypoint));
-  }
-
-  #renderNoWaypoints() {
-    render(this.#noWaypointComponent, this.#waypointListContainer);
-  }
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#waypointPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearWaypointList();
+        this.#renderWaypointList();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearWaypointList({ resetSortType: true });
+        this.#renderWaypointList();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderWaypointList();
+        break;
+    }
+  };
 
   #renderWaypointList() {
     if (this.#isLoading) {
@@ -75,5 +126,49 @@ export default class WaypointListPresenter {
     }
     render(this.#waypointListComponent, this.#waypointListContainer);
     this.#renderWaypoints(this.waypoints);
+  }
+
+  #clearWaypointList({ resetSortType = false } = {}) {
+    if (resetSortType) {
+      this.#sortModel.setSort(UpdateType.MINOR, SortType.DAY);
+    }
+
+    this.#newWaypointPresenter.destroy();
+    this.#waypointPresenters.forEach((presenter) => presenter.destroy());
+    this.#waypointPresenters.clear();
+
+    if (this.#loadingComponent) {
+      remove(this.#loadingComponent);
+    }
+
+    if (this.#noWaypointComponent) {
+      remove(this.#noWaypointComponent);
+    }
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#waypointListContainer);
+  }
+
+  #renderNoWaypoints() {
+    this.#noWaypointComponent.setFilterType(this.#filterType);
+    render(this.#noWaypointComponent, this.#waypointListContainer);
+  }
+
+  #renderWaypoints(waypoints) {
+    waypoints.forEach((waypoint) => this.#renderWaypoint(waypoint));
+  }
+
+  #renderWaypoint(waypoint) {
+    const offers = this.#waypointsModel.offers;
+    const destinations = this.#waypointsModel.destinations;
+
+    const waypointPresenter = new WaypointPresenter({
+      waypointListContainer: this.#waypointListComponent.element,
+      onDataChange: this.#handleViewAction,
+      onModeChange: this.#handleModeChange,
+    });
+    waypointPresenter.init({ waypoint, offers, destinations });
+    this.#waypointPresenters.set(waypoint.id, waypointPresenter);
   }
 }

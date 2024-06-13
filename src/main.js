@@ -9,30 +9,50 @@ import SortModel from './model/sort.js';
 const siteMainElement = document.querySelector('.trip-events');
 const headerMain = document.querySelector('.trip-main');
 const filterContainer = document.querySelector('.trip-controls__filters');
+const newWaypointButton = document.querySelector('.trip-main__event-add-btn');
+
+const handleNewWaypointFormClose = () => {
+  newWaypointButton.disabled = false;
+};
 
 const waypointsModel = new WaypointsModel();
-waypointsModel.init();
 
 const filterModel = new FilterModel();
 const sortModel = new SortModel();
 
-const tripInfoPresenter = new TripInfoPresenter(headerMain, waypointsModel);
-tripInfoPresenter.init();
+const tripInfoPresenter = new TripInfoPresenter({
+  tripInfoContainer: headerMain,
+  waypointsModel,
+});
 
-const filterPresenter = new FilterPresenter(
+const filterPresenter = new FilterPresenter({
   filterContainer,
   filterModel,
-  waypointsModel
-);
-filterPresenter.init();
+  waypointsModel,
+});
 
-const sortPresenter = new SortPresenter(siteMainElement, sortModel);
-sortPresenter.init();
+const sortPresenter = new SortPresenter({
+  sortContainer: siteMainElement,
+  sortModel,
+  waypointsModel,
+});
 
-const waypointListPresenter = new WaypointListPresenter(
-  siteMainElement,
-  waypointsModel
-);
+const waypointListPresenter = new WaypointListPresenter({
+  waypointListContainer: siteMainElement,
+  waypointsModel,
+  filterModel,
+  sortModel,
+  onNewWaypointDestroy: handleNewWaypointFormClose,
+});
 
-sortPresenter.init();
 waypointListPresenter.init();
+filterPresenter.init();
+sortPresenter.init();
+tripInfoPresenter.init();
+waypointsModel.init();
+
+newWaypointButton.addEventListener('click', (event) => {
+  event.preventDefault();
+  waypointListPresenter.createWaypoint();
+  newWaypointButton.disabled = true;
+});
