@@ -1,5 +1,5 @@
 import TripInfoView from '../view/trip-info.js';
-import { remove, render, RenderPosition, replace } from '../render/render.js';
+import { remove, render, RenderPosition, replace } from '../framework/render.js';
 import { sort } from '../util.js';
 import { SortType } from '../const.js';
 

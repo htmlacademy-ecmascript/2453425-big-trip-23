@@ -1,4 +1,4 @@
-import Observable from '../render/observable.js';
+import Observable from '../framework/observable.js';
 import { SortType } from '../const.js';
 
 export default class SortModel extends Observable {

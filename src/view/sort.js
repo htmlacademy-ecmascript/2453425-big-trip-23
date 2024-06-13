@@ -1,4 +1,4 @@
-import AbstractView from '../render/view/abstract.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createSortItemTemplate = (sortTypes, sortItem, currentSort) =>
   `<div class="trip-sort__item  trip-sort__item--${sortItem}">

@@ -3,7 +3,7 @@ import newWaypointPresenter from './new-waypoint-presenter.js';
 import LoadingView from '../view/loading.js';
 import WaypointListView from '../view/waypoint-list.js';
 import NoWaypointView from '../view/no-waypoint.js';
-import { remove, render } from '../render/render.js';
+import { remove, render } from '../framework/render.js';
 import { FilterType, SortType, UpdateType, UserAction } from '../const.js';
 import { filter, sort } from '../util.js';
 
@@ -93,7 +93,7 @@ export default class WaypointListPresenter {
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
-        this.#waypointPresenters.get(data.id).init(data);
+        this.#waypointPresenters.get(data.id).init({ waypoint: data });
         break;
       case UpdateType.MINOR:
         this.#clearWaypointList();

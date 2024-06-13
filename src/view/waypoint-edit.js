@@ -1,4 +1,4 @@
-import AbstractStatefulView from '../render/view/abstract-stateful.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 const BLANK_WAYPOINT = {
   basePrice: 0,
