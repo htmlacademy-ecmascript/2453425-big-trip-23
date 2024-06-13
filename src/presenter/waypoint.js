@@ -17,6 +17,7 @@ export default class WaypointPresenter {
   #waypoint = null;
   #offers = null;
   #destinations = null;
+
   #handleDataChange = null;
   #handleModeChange = null;
 
