@@ -1,14 +1,46 @@
+import Observable from '../render/observable.js';
 import { getWaypoints } from '../mock/waypoint.js';
 import { getMockOffers } from '../mock/offer.js';
 import { getMockDestinations } from '../mock/destionation.js';
+import { UpdateType } from '../const.js';
 
-export default class WaypointsModel {
+export default class WaypointsModel extends Observable {
   #waypoints = [];
   #offers = [];
   #destinations = [];
 
   get waypoints() {
     return this.#waypoints;
+  }
+
+  get offers() {
+    return this.#offers;
+  }
+
+  get destinations() {
+    return this.#destinations;
+  }
+
+  //нужен для tripinfo
+  getOffersByType(type) {
+    const requiredOffer = this.#offers.find((offer) => offer.type === type);
+    return [...requiredOffer.offers];
+  }
+
+  // getOffersTypes() {
+  //   return this.#offers.map((offer) => offer.type);
+  // }
+
+  // getDestinationsNames() {
+  //   return this.#destinations.map((destination) => destination.name);
+  // }
+
+  //нужен для tripinfo
+  getDestinationById(id) {
+    const requiredDestination = this.#destinations.find(
+      (item) => item.id === id
+    );
+    return { ...requiredDestination };
   }
 
   init() {
@@ -19,23 +51,49 @@ export default class WaypointsModel {
     this.#offers = offers;
     this.#destinations = destinations;
     this.#waypoints = waypoints.map(this.#adaptToClient);
+
+    this._notify(UpdateType.INIT);
   }
 
-  getOffersByType(type) {
-    const requiredOffer = this.#offers.find((item) => item.type === type);
-    return requiredOffer.offers;
+  updateWaypoint(updateType, update) {
+    const index = this.#waypoints.findIndex(
+      (waypoint) => waypoint.id === update.id
+    );
+
+    if (index === -1) {
+      throw new Error('Can not update unexisting waypoint');
+    }
+
+    this.#waypoints = [
+      ...this.#waypoints.slice(0, index),
+      update,
+      ...this.#waypoints.slice(index + 1),
+    ];
+
+    this._notify(updateType, update);
   }
 
-  getOffersTypes() {
-    return this.#offers.map((offer) => offer.type);
+  addWaypoint(updateType, update) {
+    update.id = +new Date();
+    this.#waypoints = [...this.#waypoints, update];
+    this._notify(updateType, update);
   }
 
-  getDestinationsNames() {
-    return this.#destinations.map((destination) => destination.name);
-  }
+  deleteWaypoint(updateType, update) {
+    const index = this.#waypoints.findIndex(
+      (waypoint) => waypoint.id === update.id
+    );
 
-  getDestinationById(id) {
-    return this.#destinations.find((item) => item.id === id);
+    if (index === -1) {
+      throw new Error('Can not update unexisting waypoint');
+    }
+
+    this.#waypoints = [
+      ...this.#waypoints.slice(0, index),
+      ...this.#waypoints.slice(index + 1),
+    ];
+
+    this._notify(updateType, update);
   }
 
   #adaptToClient = (waypoint) => {

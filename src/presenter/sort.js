@@ -1,17 +1,22 @@
 import SortView from '../view/sort.js';
-import { remove, render, replace } from '../render.js';
-import { SortItems, SortType } from '../const.js';
+import { remove, render, RenderPosition, replace } from '../render/render.js';
+import { SortItems, SortType, UpdateType } from '../const.js';
 
 export default class SortPresenter {
   #sortContainer = null;
 
   #sortModel = null;
+  #waypointsModel = null;
 
   #sortComponent = null;
 
-  constructor(sortContainer, sortModel) {
+  constructor({ sortContainer, sortModel, waypointsModel }) {
     this.#sortContainer = sortContainer;
     this.#sortModel = sortModel;
+    this.#waypointsModel = waypointsModel;
+
+    this.#waypointsModel.addObserver(this.#handleModelEvent);
+    this.#sortModel.addObserver(this.#handleModelEvent);
   }
 
   get sortTypes() {
@@ -27,18 +32,35 @@ export default class SortPresenter {
     const sortItems = this.sortItems;
     const prevSortComponent = this.#sortComponent;
 
-    this.#sortComponent = new SortView(
+    this.#sortComponent = new SortView({
       sortTypes,
       sortItems,
-      this.#sortModel.sort
-    );
+      currentSort: this.#sortModel.sort,
+      onSortChange: this.#handleSortChange,
+    });
 
     if (!prevSortComponent) {
-      render(this.#sortComponent, this.#sortContainer);
+      render(
+        this.#sortComponent,
+        this.#sortContainer,
+        RenderPosition.AFTERBEGIN
+      );
       return;
     }
 
     replace(this.#sortComponent, prevSortComponent);
     remove(prevSortComponent);
   }
+
+  #handleSortChange = (sortType) => {
+    if (this.#sortModel.sort === sortType) {
+      return;
+    }
+
+    this.#sortModel.setSort(UpdateType.MINOR, sortType);
+  };
+
+  #handleModelEvent = () => {
+    this.init();
+  };
 }

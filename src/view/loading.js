@@ -1,4 +1,4 @@
-import AbstractView from './abstract.js';
+import AbstractView from '../render/view/abstract.js';
 
 const createLoadingTemplate = () =>
   '<p class="trip-events__msg">Loading...</p>';

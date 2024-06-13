@@ -1,4 +1,4 @@
-import AbstractView from './abstract.js';
+import AbstractView from '../render/view/abstract.js';
 import { getDuration } from '../util.js';
 
 const createOffersListItemTemplate = ({ title, price }) =>
@@ -23,7 +23,7 @@ const createOffersListTemplate = (offers) => {
     </ul>`;
 };
 
-const createWaypointTemplate = (waypoint, destination, offers) => {
+const createWaypointTemplate = (waypoint, offers, destinations) => {
   const date = waypoint.dateFrom.toISOString().slice(0, 10);
   const startDateTime = waypoint.dateFrom.toISOString().slice(0, 16);
   const endDateTime = waypoint.dateTo.toISOString().slice(0, 16);
@@ -34,12 +34,21 @@ const createWaypointTemplate = (waypoint, destination, offers) => {
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
   const price = waypoint.basePrice;
   const type = waypoint.type;
-  const destinationName = destination.name;
+
+  const waypointDestination = destinations.filter(
+    (destination) => destination.id === waypoint.destination
+  )[0];
+  const destinationName = waypointDestination.name;
   const day = waypoint.dateFrom.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
   });
-  const selectedOffers = offers.filter((offer) =>
+
+  const waypointOffers = offers.filter(
+    (offer) => offer.type === waypoint.type
+  )[0].offers;
+
+  const selectedOffers = waypointOffers.filter((offer) =>
     waypoint.offers.includes(offer.id)
   );
 
@@ -78,21 +87,48 @@ const createWaypointTemplate = (waypoint, destination, offers) => {
 
 export default class WaypointView extends AbstractView {
   #waypoint = null;
-  #destination = null;
   #offers = null;
+  #destinations = null;
+  #handleRollupClick = null;
+  #handleFavoriteClick = null;
 
-  constructor(waypoint, destination, offers) {
+  constructor({
+    waypoint,
+    offers,
+    destinations,
+    onRollupClick,
+    onFavoriteClick,
+  }) {
     super();
     this.#waypoint = waypoint;
-    this.#destination = destination;
+    this.#destinations = destinations;
     this.#offers = offers;
+    this.#handleRollupClick = onRollupClick;
+    this.#handleFavoriteClick = onFavoriteClick;
+
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupClickHandler);
+    this.element
+      .querySelector('.event__favorite-btn')
+      .addEventListener('click', this.#favoriteClickHandler);
   }
 
   get template() {
     return createWaypointTemplate(
       this.#waypoint,
-      this.#destination,
-      this.#offers
+      this.#offers,
+      this.#destinations
     );
   }
+
+  #rollupClickHandler = (event) => {
+    event.preventDefault();
+    this.#handleRollupClick();
+  };
+
+  #favoriteClickHandler = (event) => {
+    event.preventDefault();
+    this.#handleFavoriteClick();
+  };
 }

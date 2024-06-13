@@ -51,18 +51,20 @@ const filter = {
         waypoint.dateFrom <= new Date() && waypoint.dateTo >= new Date()
     ),
   [FilterType.PAST]: (waypoints) =>
-    waypoints.filter((waypoint) => waypoint.dateTo <= new Date()),
+    waypoints.filter((waypoint) => waypoint.dateTo < new Date()),
 };
 
 const sort = {
   [SortType.DAY]: (waypointA, waypointB) =>
     waypointA.dateFrom - waypointB.dateFrom,
-  [SortType.TIME]: (waypointA, waypointB) =>
-    waypointA.DateTo -
-    waypointA.dateFrom -
-    (waypointB.dateTo - waypointB.dateTo),
+  [SortType.TIME]: (waypointA, waypointB) => {
+    const durationA = waypointA.dateTo - waypointA.dateFrom;
+    const durationB = waypointB.dateTo - waypointB.dateFrom;
+
+    return durationB - durationA;
+  },
   [SortType.PRICE]: (waypointA, waypointB) =>
-    waypointA.basePrice - waypointB.basePrice,
+    waypointB.basePrice - waypointA.basePrice,
 };
 
 export { getDuration, filter, sort };

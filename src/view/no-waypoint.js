@@ -1,4 +1,4 @@
-import AbstractView from './abstract.js';
+import AbstractView from '../render/view/abstract.js';
 import { FilterType } from '../const.js';
 
 const NoWaypointTextType = {
@@ -14,7 +14,13 @@ const createNoWaypointTemplate = (filterType = 'everything') => {
 };
 
 export default class LoadingView extends AbstractView {
+  #filterType = FilterType.EVERYTHING;
+
+  setFilterType(filterType) {
+    this.#filterType = filterType;
+  }
+
   get template() {
-    return createNoWaypointTemplate();
+    return createNoWaypointTemplate(this.#filterType);
   }
 }
