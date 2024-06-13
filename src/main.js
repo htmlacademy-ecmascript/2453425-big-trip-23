@@ -16,7 +16,6 @@ const handleNewWaypointFormClose = () => {
 };
 
 const waypointsModel = new WaypointsModel();
-
 const filterModel = new FilterModel();
 const sortModel = new SortModel();
 
@@ -53,6 +52,7 @@ waypointsModel.init();
 
 newWaypointButton.addEventListener('click', (event) => {
   event.preventDefault();
+
   waypointListPresenter.createWaypoint();
   newWaypointButton.disabled = true;
 });
