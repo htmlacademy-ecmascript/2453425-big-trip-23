@@ -116,14 +116,14 @@ const createRollupButton = (waypoint) => {
 
 const createWaypointEditTemplate = (waypoint, offers, destinations) => {
   const eventTypes = offers.map((offer) => offer.type);
-  const waypointDestination = destinations.filter(
+  const waypointDestination = destinations.find(
     (dest) => dest.id === waypoint.destination
-  )[0];
+  );
 
   const destinationsNames = destinations.map((dest) => dest.name);
-  const waypointOffers = offers.filter(
+  const waypointOffers = offers.find(
     (offer) => offer.type === waypoint.type
-  )[0].offers;
+  ).offers;
 
   const startDate = waypoint.dateFrom
     .toLocaleString('en-US', {
@@ -310,9 +310,9 @@ export default class WaypointEditView extends AbstractStatefulView {
   #destinationChangeHandler = (event) => {
     event.preventDefault();
     const destinationName = event.target.value;
-    const destinationId = this.destinations.filter(
+    const destinationId = this.destinations.find(
       (destination) => destination.name === destinationName
-    )[0].id;
+    ).id;
     this.updateElement({
       destination: destinationId,
     });
