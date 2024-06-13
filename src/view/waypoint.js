@@ -35,18 +35,18 @@ const createWaypointTemplate = (waypoint, offers, destinations) => {
   const price = waypoint.basePrice;
   const type = waypoint.type;
 
-  const waypointDestination = destinations.filter(
+  const waypointDestination = destinations.find(
     (destination) => destination.id === waypoint.destination
-  )[0];
+  );
   const destinationName = waypointDestination.name;
   const day = waypoint.dateFrom.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
   });
 
-  const waypointOffers = offers.filter(
+  const waypointOffers = offers.find(
     (offer) => offer.type === waypoint.type
-  )[0].offers;
+  ).offers;
 
   const selectedOffers = waypointOffers.filter((offer) =>
     waypoint.offers.includes(offer.id)
