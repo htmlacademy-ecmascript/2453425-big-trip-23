@@ -1,5 +1,5 @@
 import { UpdateType, UserAction } from '../const.js';
-import { remove, render, replace } from '../render/render.js';
+import { remove, render, replace } from '../framework/render.js';
 import WaypointEditView from '../view/waypoint-edit.js';
 import WaypointView from '../view/waypoint.js';
 

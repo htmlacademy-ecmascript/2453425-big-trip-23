@@ -1,4 +1,4 @@
-import Observable from '../render/observable.js';
+import Observable from '../framework/observable.js';
 import { getWaypoints } from '../mock/waypoint.js';
 import { getMockOffers } from '../mock/offer.js';
 import { getMockDestinations } from '../mock/destionation.js';
@@ -21,21 +21,11 @@ export default class WaypointsModel extends Observable {
     return this.#destinations;
   }
 
-  //нужен для tripinfo
   getOffersByType(type) {
     const requiredOffer = this.#offers.find((offer) => offer.type === type);
     return [...requiredOffer.offers];
   }
 
-  // getOffersTypes() {
-  //   return this.#offers.map((offer) => offer.type);
-  // }
-
-  // getDestinationsNames() {
-  //   return this.#destinations.map((destination) => destination.name);
-  // }
-
-  //нужен для tripinfo
   getDestinationById(id) {
     const requiredDestination = this.#destinations.find(
       (item) => item.id === id

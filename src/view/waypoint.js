@@ -1,4 +1,4 @@
-import AbstractView from '../render/view/abstract.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import { getDuration } from '../util.js';
 
 const createOffersListItemTemplate = ({ title, price }) =>

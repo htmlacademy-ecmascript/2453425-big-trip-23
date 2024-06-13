@@ -1,5 +1,5 @@
 import waypointEditView from '../view/waypoint-edit';
-import { render, RenderPosition } from '../render/render.js';
+import { render, RenderPosition } from '../framework/render.js';
 
 export default class NewWaypointPresenter {
   #waypointListContainer = null;

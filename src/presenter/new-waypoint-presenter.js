@@ -1,4 +1,4 @@
-import { remove, render, RenderPosition } from '../render/render.js';
+import { remove, render, RenderPosition } from '../framework/render.js';
 import WaypointEditView from '../view/waypoint-edit.js';
 import { UpdateType, UserAction } from '../const.js';
 

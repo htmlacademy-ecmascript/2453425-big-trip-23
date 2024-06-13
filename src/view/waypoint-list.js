@@ -1,4 +1,4 @@
-import AbstractView from '../render/view/abstract.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createWaypointListTemplate = () => '<ul class="trip-events__list"></ul>';
 
