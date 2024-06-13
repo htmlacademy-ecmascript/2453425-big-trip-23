@@ -7,9 +7,7 @@ const createTripInfoTitleTemplate = (destinations) => {
     title = `${destinations[0]} &mdash; &hellip; &mdash; ${
       destinations[destinations.length - 1]
     }`;
-  }
-
-  if (destinations.length <= 3) {
+  } else {
     title = destinations.join(' &mdash; ');
   }
 
