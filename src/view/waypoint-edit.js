@@ -129,8 +129,8 @@ const createWaypointEditTemplate = (waypoint, offers, destinations) => {
     (offer) => offer.type === waypoint.type
   ).offers;
 
-  const startDate = dayjs(waypoint.dateFrom).format('DD/MM/YY HH:mm');
-  const endDate = dayjs(waypoint.dateTo).format('DD/MM/YY HH:mm');
+  const startDate = waypoint.dateFrom ? dayjs(waypoint.dateFrom).format('DD/MM/YY HH:mm') : '';
+  const endDate = waypoint.dateTo ? dayjs(waypoint.dateTo).format('DD/MM/YY HH:mm') : '';
 
   return `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
