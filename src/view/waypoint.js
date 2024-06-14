@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { getDuration } from '../util.js';
+import dayjs from 'dayjs';
 
 const createOffersListItemTemplate = ({ title, price }) =>
   `<li class="event__offer">
@@ -24,30 +25,28 @@ const createOffersListTemplate = (offers) => {
 };
 
 const createWaypointTemplate = (waypoint, offers, destinations) => {
-  const date = waypoint.dateFrom.toISOString().slice(0, 10);
-  const startDateTime = waypoint.dateFrom.toISOString().slice(0, 16);
-  const endDateTime = waypoint.dateTo.toISOString().slice(0, 16);
-  const startTime = waypoint.dateFrom.toISOString().slice(11, 16);
-  const endTime = waypoint.dateTo.toISOString().slice(11, 16);
-  const duration = getDuration(waypoint.dateFrom, waypoint.dateTo);
+  const date = dayjs(waypoint.dateFrom).format('YYYY-MM-DD');
+  const startDateTime = dayjs(waypoint.dateFrom).format('YYYY-MM-DDTHH:mm');
+  const endDateTime = dayjs(waypoint.dateTo).format('YYYY-MM-DDTHH:mm');
+  const startTime = dayjs(waypoint.dateFrom).format('HH:mm');
+  const endTime = dayjs(waypoint.dateTo).format('HH:mm');
+  const day = dayjs(waypoint.dateFrom).format('MMM DD');
+  const eventDurationInMilliseconds = dayjs(waypoint.dateTo).diff(
+    dayjs(waypoint.dateFrom)
+  );
+  const humanizeEventDuration = getDuration(eventDurationInMilliseconds);
+
   const isFavorite = waypoint.isFavorite;
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
   const price = waypoint.basePrice;
   const type = waypoint.type;
-
   const waypointDestination = destinations.find(
     (destination) => destination.id === waypoint.destination
   );
   const destinationName = waypointDestination.name;
-  const day = waypoint.dateFrom.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-
   const waypointOffers = offers.find(
     (offer) => offer.type === waypoint.type
   ).offers;
-
   const selectedOffers = waypointOffers.filter((offer) =>
     waypoint.offers.includes(offer.id)
   );
@@ -65,7 +64,7 @@ const createWaypointTemplate = (waypoint, offers, destinations) => {
             &mdash;
             <time class="event__end-time" datetime="${endDateTime}">${endTime}</time>
           </p>
-          <p class="event__duration">${duration}</p>
+          <p class="event__duration">${humanizeEventDuration}</p>
         </div>
         <p class="event__price">
           &euro;&nbsp;<span class="event__price-value">${price}</span>

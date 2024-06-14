@@ -1,6 +1,11 @@
 import SortView from '../view/sort.js';
-import { remove, render, RenderPosition, replace } from '../framework/render.js';
-import { SortItems, SortType, UpdateType } from '../const.js';
+import {
+  remove,
+  render,
+  RenderPosition,
+  replace,
+} from '../framework/render.js';
+import { SortItem, SortType, UpdateType } from '../const.js';
 
 export default class SortPresenter {
   #sortContainer = null;
@@ -24,7 +29,7 @@ export default class SortPresenter {
   }
 
   get sortItems() {
-    return Object.values(SortItems).map((item) => item);
+    return Object.values(SortItem).map((item) => item);
   }
 
   init() {

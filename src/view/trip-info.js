@@ -1,4 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import dayjs from 'dayjs';
 
 const createTripInfoTitleTemplate = (destinations) => {
   let title;
@@ -15,14 +16,8 @@ const createTripInfoTitleTemplate = (destinations) => {
 };
 
 const createTripInfoDatesTemplate = (dates) => {
-  const startDate = dates[0].dateFrom.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-  const endDate = dates[[dates.length - 1]].dateTo.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
+  const startDate = dayjs(dates[0].dateFrom).format('DD MMM');
+  const endDate = dayjs(dates[[dates.length - 1]].dateTo).format('DD MMM');
 
   return `<p class="trip-info__dates">${startDate}&nbsp;&mdash;&nbsp;${endDate}</p>`;
 };

@@ -1,4 +1,8 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import dayjs from 'dayjs';
+import flatpickr from 'flatpickr';
+import rangePlugin from 'flatpickr/dist/esm/plugins/rangePlugin.js';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_WAYPOINT = {
   basePrice: 0,
@@ -125,28 +129,9 @@ const createWaypointEditTemplate = (waypoint, offers, destinations) => {
     (offer) => offer.type === waypoint.type
   ).offers;
 
-  const startDate = waypoint.dateFrom
-    .toLocaleString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-    })
-    .split(',')
-    .join('');
-  const endDate = waypoint.dateTo
-    .toLocaleString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit',
-    })
-    .split(',')
-    .join('');
+  const startDate = dayjs(waypoint.dateFrom).format('DD/MM/YY HH:mm');
+  const endDate = dayjs(waypoint.dateTo).format('DD/MM/YY HH:mm');
+
   return `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
@@ -228,6 +213,9 @@ export default class WaypointEditView extends AbstractStatefulView {
   #handleRollupClick = null;
   #handleFormSubmit = null;
   #handleDeleteClick = null;
+  #datepicker = null;
+  #startDatePicker = null;
+  #endDatePicker = null;
 
   constructor({
     waypoint = BLANK_WAYPOINT,
@@ -257,6 +245,35 @@ export default class WaypointEditView extends AbstractStatefulView {
     );
   }
 
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
+  }
+
+  #setDatepicker() {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        mode: 'range',
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        'time_24hr': true,
+        onChange: this.#dateChangeHandler,
+        plugins: [
+          new rangePlugin(
+            {
+              input: this.element.querySelector('#event-end-time-1'),
+            }
+          )
+        ],
+      }
+    );
+  }
+
   reset(waypoint) {
     this.updateElement(WaypointEditView.parseWaypointToState(waypoint));
   }
@@ -280,18 +297,14 @@ export default class WaypointEditView extends AbstractStatefulView {
     this.element
       .querySelector('.event__input--price')
       .addEventListener('input', this.#priceInputHandler);
-    this.element
-      .querySelector('#event-start-time-1')
-      .addEventListener('input', this.#dateChangeHandler);
-    this.element
-      .querySelector('#event-end-time-1')
-      .addEventListener('input', this.#dateChangeHandler);
 
     if (this.#handleRollupClick) {
       this.element
         .querySelector('.event__rollup-btn')
         .addEventListener('click', this.#rollupClickHandler);
     }
+
+    this.#setDatepicker();
   }
 
   #rollupClickHandler = (event) => {
@@ -337,13 +350,11 @@ export default class WaypointEditView extends AbstractStatefulView {
     this._setState({ basePrice: +event.target.value });
   };
 
-  #dateChangeHandler = (event) => {
-    if (event.target.id === 'event-start-time-1') {
-      this._setState({ dateFrom: new Date(event.target.value) });
-    }
-    if (event.target.id === 'event-end-time-1') {
-      this._setState({ dateTo: new Date(event.target.value) });
-    }
+  #dateChangeHandler = ([startDate, endDate]) => {
+    this.updateElement({
+      dateFrom: startDate,
+      dateTo: endDate,
+    });
   };
 
   #formSubmitHandler = (event) => {

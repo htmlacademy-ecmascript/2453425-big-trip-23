@@ -11,7 +11,7 @@ const SortType = {
   PRICE: 'price',
 };
 
-const SortItems = {
+const SortItem = {
   DAY: 'day',
   EVENT: 'event',
   TIME: 'time',
@@ -19,7 +19,7 @@ const SortItems = {
   OFFERS: 'offers',
 };
 
-const TimeUnits = {
+const TimeUnit = {
   DAYS: 'D',
   HOURS: 'H',
   MINUTES: 'M',
@@ -38,4 +38,4 @@ const UserAction = {
   UPDATE_WAYPOINT: 'UPDATE_WAYPOINT',
 };
 
-export { FilterType, TimeUnits, SortType, SortItems, UpdateType, UserAction };
+export { FilterType, TimeUnit, SortType, SortItem, UpdateType, UserAction };
