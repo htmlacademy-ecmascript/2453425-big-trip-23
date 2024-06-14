@@ -1,12 +1,12 @@
-import { TimeUnits } from './const.js';
+import { TimeUnit } from './const.js';
 import { FilterType, SortType } from './const.js';
 
 const durationInTimeUnits = {
-  [TimeUnits.DAYS]: (durationInMiliseconds) =>
+  [TimeUnit.DAYS]: (durationInMiliseconds) =>
     Math.floor(durationInMiliseconds / (1000 * 60 * 60 * 24)),
-  [TimeUnits.HOURS]: (durationInMiliseconds) =>
+  [TimeUnit.HOURS]: (durationInMiliseconds) =>
     Math.floor((durationInMiliseconds / (1000 * 60 * 60)) % 24),
-  [TimeUnits.MINUTES]: (durationInMiliseconds) =>
+  [TimeUnit.MINUTES]: (durationInMiliseconds) =>
     Math.floor((durationInMiliseconds / (1000 * 60)) % 60),
 };
 
@@ -24,11 +24,12 @@ const getTimeDifference = (durationInMiliseconds, unit) => {
   return duration;
 };
 
-const getDuration = (eventDate, eventEndDate) => {
-  const durationInMiliseconds = eventEndDate - eventDate;
-
-  const duration = Object.values(TimeUnits).reduce((result, unit) => {
-    let currentUnitDuration = getTimeDifference(durationInMiliseconds, unit);
+const getDuration = (eventDurationInMilliseconds) => {
+  const duration = Object.values(TimeUnit).reduce((result, unit) => {
+    let currentUnitDuration = getTimeDifference(
+      eventDurationInMilliseconds,
+      unit
+    );
 
     if (result.trim() !== '' && !currentUnitDuration) {
       currentUnitDuration = `00${unit}`;
