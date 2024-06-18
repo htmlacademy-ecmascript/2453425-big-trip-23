@@ -1,13 +1,17 @@
 import Observable from '../framework/observable.js';
-import { getWaypoints } from '../mock/waypoint.js';
-import { getMockOffers } from '../mock/offer.js';
-import { getMockDestinations } from '../mock/destionation.js';
 import { UpdateType } from '../const.js';
 
 export default class WaypointsModel extends Observable {
+  #waypointsApiService = null;
   #waypoints = [];
   #offers = [];
   #destinations = [];
+  #failedToLoad = false;
+
+  constructor({waypointApiService}) {
+    super();
+    this.#waypointsApiService = waypointApiService;
+  }
 
   get waypoints() {
     return this.#waypoints;
@@ -19,6 +23,10 @@ export default class WaypointsModel extends Observable {
 
   get destinations() {
     return this.#destinations;
+  }
+
+  get failedToLoad() {
+    return this.#failedToLoad;
   }
 
   getOffersByType(type) {
@@ -33,19 +41,22 @@ export default class WaypointsModel extends Observable {
     return { ...requiredDestination };
   }
 
-  init() {
-    const waypoints = getWaypoints();
-    const offers = getMockOffers();
-    const destinations = getMockDestinations();
-
-    this.#offers = offers;
-    this.#destinations = destinations;
-    this.#waypoints = waypoints.map(this.#adaptToClient);
-
+  async init() {
+    try {
+      const waypoints = await this.#waypointsApiService.waypoints;
+      this.#waypoints = waypoints.map(this.#adaptToClient);
+      this.#offers = await this.#waypointsApiService.offers;
+      this.#destinations = await this.#waypointsApiService.destinations;
+    } catch(error) {
+      this.#waypoints = [];
+      this.#offers = [];
+      this.#destinations = [];
+      this.#failedToLoad = true;
+    }
     this._notify(UpdateType.INIT);
   }
 
-  updateWaypoint(updateType, update) {
+  async updateWaypoint(updateType, update) {
     const index = this.#waypoints.findIndex(
       (waypoint) => waypoint.id === update.id
     );
@@ -54,36 +65,56 @@ export default class WaypointsModel extends Observable {
       throw new Error('Can not update unexisting waypoint');
     }
 
-    this.#waypoints = [
-      ...this.#waypoints.slice(0, index),
-      update,
-      ...this.#waypoints.slice(index + 1),
-    ];
+    try {
+      const response = await this.#waypointsApiService.updateWaypoint(update);
+      const updatedWaypoint = this.#adaptToClient(response);
 
-    this._notify(updateType, update);
+      this.#waypoints = [
+        ...this.#waypoints.slice(0, index),
+        updatedWaypoint,
+        ...this.#waypoints.slice(index + 1),
+      ];
+
+      this._notify(updateType, updatedWaypoint);
+    } catch(error) {
+      throw new Error('Con not update waypoint');
+    }
   }
 
-  addWaypoint(updateType, update) {
-    update.id = +new Date();
-    this.#waypoints = [...this.#waypoints, update];
-    this._notify(updateType, update);
+  async addWaypoint(updateType, update) {
+    try {
+      const response = await this.#waypointsApiService.addWaypoint(update);
+      const newWaypoint = this.#adaptToClient(response);
+
+      this.#waypoints = [newWaypoint, ...this.#waypoints];
+
+      this._notify(updateType, newWaypoint);
+    } catch(error) {
+      throw new Error('Can not add waypoint');
+    }
   }
 
-  deleteWaypoint(updateType, update) {
+  async deleteWaypoint(updateType, update) {
     const index = this.#waypoints.findIndex(
       (waypoint) => waypoint.id === update.id
     );
 
     if (index === -1) {
-      throw new Error('Can not update unexisting waypoint');
+      throw new Error('Can not delete unexisting waypoint');
     }
 
-    this.#waypoints = [
-      ...this.#waypoints.slice(0, index),
-      ...this.#waypoints.slice(index + 1),
-    ];
+    try {
+      await this.#waypointsApiService.deleteWaypoint(update);
 
-    this._notify(updateType, update);
+      this.#waypoints = [
+        ...this.#waypoints.slice(0, index),
+        ...this.#waypoints.slice(index + 1),
+      ];
+
+      this._notify(updateType, update);
+    } catch(error) {
+      throw new Error('Can not delete waypoint');
+    }
   }
 
   #adaptToClient = (waypoint) => {

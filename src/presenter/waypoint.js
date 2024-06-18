@@ -77,21 +77,34 @@ export default class WaypointPresenter {
   }
 
   setSaving() {
-    if (this.#mode === Mode.EDITING) {
-      this.#waypointEditComponent.updateElement({
-        isDisabled: true,
-        isSaving: true,
-      });
-    }
+    this.#waypointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
   }
 
   setDeleting() {
-    if (this.#mode === Mode.EDITING) {
-      this.#waypointEditComponent.updateElement({
-        isDisabled: true,
-        isDeleting: true,
-      });
+    this.#waypointEditComponent.updateElement({
+      isDisabled: true,
+      isDeleting: true,
+    });
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#waypointComponent.shake();
+      return;
     }
+
+    const resetFormState = () => {
+      this.#waypointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#waypointEditComponent.shake(resetFormState);
   }
 
   resetView() {

@@ -57,6 +57,14 @@ export default class SortPresenter {
     remove(prevSortComponent);
   }
 
+  remove() {
+    if (this.#sortComponent) {
+      remove(this.#sortComponent);
+      this.#sortComponent = null;
+    }
+
+  }
+
   #handleSortChange = (sortType) => {
     if (this.#sortModel.sort === sortType) {
       return;
@@ -66,6 +74,11 @@ export default class SortPresenter {
   };
 
   #handleModelEvent = () => {
+    const waypointsLength = this.#waypointsModel.waypoints.length;
+    if (waypointsLength === 0) {
+      this.remove();
+      return;
+    }
     this.init();
   };
 }
