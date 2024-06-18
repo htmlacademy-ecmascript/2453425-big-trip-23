@@ -22,6 +22,18 @@ const createTripInfoDatesTemplate = (dates) => {
   return `<p class="trip-info__dates">${startDate}&nbsp;&mdash;&nbsp;${endDate}</p>`;
 };
 
+const createTripInfoCostTemplate = (cost) => {
+  if (cost === 0) {
+    return '';
+  }
+
+  return (
+    `<p class="trip-info__cost">
+      Total: &euro;&nbsp;<span class="trip-info__cost-value">${cost}</span>
+    </p>`
+  );
+};
+
 const createTripInfoTemplate = (waypoints) => {
   const destinations = waypoints.map((waypoint) => waypoint.destination);
   const dates = waypoints.map((waypoint) => ({
@@ -39,9 +51,9 @@ const createTripInfoTemplate = (waypoints) => {
       ${waypoints.length ? createTripInfoDatesTemplate(dates) : ''}
     </div>
 
-    <p class="trip-info__cost">
-      Total: &euro;&nbsp;<span class="trip-info__cost-value">${cost}</span>
-    </p>
+    ${createTripInfoCostTemplate(cost)}
+
+
   </section>`;
 };
 

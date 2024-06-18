@@ -5,17 +5,20 @@ import TripInfoPresenter from './presenter/trip-info.js';
 import FilterPresenter from './presenter/filter.js';
 import FilterModel from './model/filter.js';
 import SortModel from './model/sort.js';
+import WaypointApiService from './waypoint-api-service.js';
+
+const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
+const AUTHORIZATION = 'Basic MD12xAZID10JFVejW';
 
 const siteMainElement = document.querySelector('.trip-events');
 const headerMain = document.querySelector('.trip-main');
 const filterContainer = document.querySelector('.trip-controls__filters');
 const newWaypointButton = document.querySelector('.trip-main__event-add-btn');
+newWaypointButton.disabled = true;
 
-const handleNewWaypointFormClose = () => {
-  newWaypointButton.disabled = false;
-};
-
-const waypointsModel = new WaypointsModel();
+const waypointsModel = new WaypointsModel({
+  waypointApiService: new WaypointApiService(END_POINT, AUTHORIZATION)
+});
 const filterModel = new FilterModel();
 const sortModel = new SortModel();
 
@@ -41,7 +44,7 @@ const waypointListPresenter = new WaypointListPresenter({
   waypointsModel,
   filterModel,
   sortModel,
-  onNewWaypointDestroy: handleNewWaypointFormClose,
+  newWaypointButton: newWaypointButton,
 });
 
 waypointListPresenter.init();

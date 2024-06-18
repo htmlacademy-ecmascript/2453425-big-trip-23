@@ -1,5 +1,6 @@
 import { TimeUnit } from './const.js';
 import { FilterType, SortType } from './const.js';
+import dayjs from 'dayjs';
 
 const durationInTimeUnits = {
   [TimeUnit.DAYS]: (durationInMiliseconds) =>
@@ -68,4 +69,6 @@ const sort = {
     waypointB.basePrice - waypointA.basePrice,
 };
 
-export { getDuration, filter, sort };
+const isDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB);
+
+export { getDuration, filter, sort, isDatesEqual };

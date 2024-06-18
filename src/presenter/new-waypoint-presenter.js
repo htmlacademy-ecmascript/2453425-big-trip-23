@@ -3,15 +3,18 @@ import WaypointEditView from '../view/waypoint-edit.js';
 import { UpdateType, UserAction } from '../const.js';
 
 export default class newWaypointPresenter {
-  #waypointListContainer = null;
+  #waypointListComponent = null;
 
   #waypointEditComponent = null;
+
+  #newWaypointButton = null;
 
   #handleDataChange = null;
   #handleDestroy = null;
 
-  constructor({ waypointListContainer, onDataChange, onDestroy }) {
-    this.#waypointListContainer = waypointListContainer;
+  constructor({ waypointListComponent, newWaypointButton, onDataChange, onDestroy }) {
+    this.#waypointListComponent = waypointListComponent;
+    this.#newWaypointButton = newWaypointButton;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
   }
@@ -31,7 +34,7 @@ export default class newWaypointPresenter {
 
     render(
       this.#waypointEditComponent,
-      this.#waypointListContainer.querySelector('.trip-events__list'),
+      this.#waypointListComponent.element,
       RenderPosition.AFTERBEGIN
     );
 
@@ -43,7 +46,7 @@ export default class newWaypointPresenter {
       return;
     }
 
-    this.#handleDestroy();
+    this.#newWaypointButton.disabled = false;
 
     remove(this.#waypointEditComponent);
     this.#waypointEditComponent = null;
@@ -52,10 +55,22 @@ export default class newWaypointPresenter {
   }
 
   setSaving() {
-    this.#waypointEditComponent.updeteElement({
+    this.#waypointEditComponent.updateElement({
       isDisabled: true,
       isSaving: true,
     });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#waypointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#waypointEditComponent.shake(resetFormState);
   }
 
   #handleFormSubmit = (waypoint) => {
@@ -63,13 +78,13 @@ export default class newWaypointPresenter {
   };
 
   #handleFormDeleteClick = () => {
-    this.destroy();
+    this.#handleDestroy();
   };
 
   #escKeyDownHandler = (event) => {
     if (event.key === 'Escape' || event.key === 'Esc') {
       event.preventDefault();
-      this.destroy();
+      this.#handleDestroy();
     }
   };
 }
