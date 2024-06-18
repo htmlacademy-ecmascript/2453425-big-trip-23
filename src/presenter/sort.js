@@ -1,11 +1,11 @@
 import SortView from '../view/sort.js';
+import { SortItem, SortType, UpdateType } from '../const.js';
 import {
   remove,
   render,
   RenderPosition,
   replace,
 } from '../framework/render.js';
-import { SortItem, SortType, UpdateType } from '../const.js';
 
 export default class SortPresenter {
   #sortContainer = null;
@@ -62,7 +62,6 @@ export default class SortPresenter {
       remove(this.#sortComponent);
       this.#sortComponent = null;
     }
-
   }
 
   #handleSortChange = (sortType) => {
