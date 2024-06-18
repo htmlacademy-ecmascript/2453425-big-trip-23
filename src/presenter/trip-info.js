@@ -1,7 +1,12 @@
 import TripInfoView from '../view/trip-info.js';
-import { remove, render, RenderPosition, replace } from '../framework/render.js';
 import { sort } from '../util.js';
 import { SortType } from '../const.js';
+import {
+  remove,
+  render,
+  RenderPosition,
+  replace,
+} from '../framework/render.js';
 
 export default class TripInfoPresenter {
   #waypointsModel = null;

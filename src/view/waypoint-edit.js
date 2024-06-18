@@ -129,14 +129,12 @@ const createRollupButton = (waypoint) => {
   if (!waypoint.id) {
     return '';
   }
-  return (
-    `<button
+  return `<button
     class="event__rollup-btn"
     type="button"
     >
       <span class="visually-hidden">Open event</span>
-    </button>`
-  );
+    </button>`;
 };
 
 const getFormCancelingText = (waypoint) => {
@@ -151,6 +149,20 @@ const getFormCancelingText = (waypoint) => {
   return 'Delete';
 };
 
+const createEventDetailsTemplate = (waypoint, offers, destination) => {
+  const offersTemplate = createOffersTemplate(waypoint, offers);
+  const destinationTemplate = createDestinationContainerTemplate(destination);
+
+  if (!offersTemplate && !destinationTemplate) {
+    return '';
+  }
+
+  return `<section class="event__details">
+      ${offersTemplate}
+      ${destinationTemplate}
+    </section>`;
+};
+
 const createWaypointEditTemplate = (waypoint, offers, destinations) => {
   const eventTypes = offers.map((offer) => offer.type);
   const waypointDestination = destinations.find(
@@ -162,8 +174,12 @@ const createWaypointEditTemplate = (waypoint, offers, destinations) => {
     (offer) => offer.type === waypoint.type
   ).offers;
 
-  const startDate = waypoint.dateFrom ? dayjs(waypoint.dateFrom).format('DD/MM/YY HH:mm') : '';
-  const endDate = waypoint.dateTo ? dayjs(waypoint.dateTo).format('DD/MM/YY HH:mm') : '';
+  const startDate = waypoint.dateFrom
+    ? dayjs(waypoint.dateFrom).format('DD/MM/YY HH:mm')
+    : '';
+  const endDate = waypoint.dateTo
+    ? dayjs(waypoint.dateTo).format('DD/MM/YY HH:mm')
+    : '';
 
   return `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -260,11 +276,7 @@ const createWaypointEditTemplate = (waypoint, offers, destinations) => {
           ${createRollupButton(waypoint)}
 
         </header>
-        <section class="event__details">
-          ${createOffersTemplate(waypoint, waypointOffers)}
-
-          ${createDestinationContainerTemplate(waypointDestination)}
-        </section>
+        ${createEventDetailsTemplate(waypoint, waypointOffers, waypointDestination)}
       </form>
     </li>`;
 };
@@ -312,26 +324,6 @@ export default class WaypointEditView extends AbstractStatefulView {
     }
   }
 
-  #setDatepicker() {
-    this.#datepicker = flatpickr(
-      this.element.querySelector('#event-start-time-1'),
-      {
-        mode: 'range',
-        dateFormat: 'd/m/y H:i',
-        enableTime: true,
-        'time_24hr': true,
-        onChange: this.#dateChangeHandler,
-        plugins: [
-          new rangePlugin(
-            {
-              input: this.element.querySelector('#event-end-time-1'),
-            }
-          )
-        ],
-      }
-    );
-  }
-
   reset(waypoint) {
     this.updateElement(WaypointEditView.parseWaypointToState(waypoint));
   }
@@ -365,6 +357,24 @@ export default class WaypointEditView extends AbstractStatefulView {
     this.#setDatepicker();
   }
 
+  #setDatepicker() {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        mode: 'range',
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        'time_24hr': true,
+        onChange: this.#dateChangeHandler,
+        plugins: [
+          new rangePlugin({
+            input: this.element.querySelector('#event-end-time-1'),
+          }),
+        ],
+      }
+    );
+  }
+
   #rollupClickHandler = (event) => {
     event.preventDefault();
     this.#handleRollupClick();
@@ -387,7 +397,7 @@ export default class WaypointEditView extends AbstractStatefulView {
 
     if (selectedDestination) {
       this.updateElement({
-        destination: selectedDestination.id
+        destination: selectedDestination.id,
       });
     }
   };

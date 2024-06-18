@@ -1,5 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { getDuration } from '../util.js';
+import he from 'he';
 import dayjs from 'dayjs';
 
 const createOffersListItemTemplate = ({ title, price }) =>
@@ -38,7 +39,7 @@ const createWaypointTemplate = (waypoint, offers, destinations) => {
 
   const isFavorite = waypoint.isFavorite;
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
-  const price = waypoint.basePrice;
+  const price = he.encode(String(waypoint.basePrice));
   const type = waypoint.type;
   const waypointDestination = destinations.find(
     (destination) => destination.id === waypoint.destination

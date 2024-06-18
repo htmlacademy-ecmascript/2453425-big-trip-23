@@ -1,5 +1,5 @@
-import { remove, render, RenderPosition } from '../framework/render.js';
 import WaypointEditView from '../view/waypoint-edit.js';
+import { remove, render, RenderPosition } from '../framework/render.js';
 import { UpdateType, UserAction } from '../const.js';
 
 export default class newWaypointPresenter {
@@ -12,7 +12,12 @@ export default class newWaypointPresenter {
   #handleDataChange = null;
   #handleDestroy = null;
 
-  constructor({ waypointListComponent, newWaypointButton, onDataChange, onDestroy }) {
+  constructor({
+    waypointListComponent,
+    newWaypointButton,
+    onDataChange,
+    onDestroy,
+  }) {
     this.#waypointListComponent = waypointListComponent;
     this.#newWaypointButton = newWaypointButton;
     this.#handleDataChange = onDataChange;

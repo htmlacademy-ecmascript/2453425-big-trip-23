@@ -14,10 +14,9 @@ const siteMainElement = document.querySelector('.trip-events');
 const headerMain = document.querySelector('.trip-main');
 const filterContainer = document.querySelector('.trip-controls__filters');
 const newWaypointButton = document.querySelector('.trip-main__event-add-btn');
-newWaypointButton.disabled = true;
 
 const waypointsModel = new WaypointsModel({
-  waypointApiService: new WaypointApiService(END_POINT, AUTHORIZATION)
+  waypointApiService: new WaypointApiService(END_POINT, AUTHORIZATION),
 });
 const filterModel = new FilterModel();
 const sortModel = new SortModel();
@@ -52,10 +51,3 @@ filterPresenter.init();
 sortPresenter.init();
 tripInfoPresenter.init();
 waypointsModel.init();
-
-newWaypointButton.addEventListener('click', (event) => {
-  event.preventDefault();
-
-  waypointListPresenter.createWaypoint();
-  newWaypointButton.disabled = true;
-});

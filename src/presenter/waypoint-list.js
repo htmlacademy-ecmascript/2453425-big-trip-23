@@ -6,8 +6,8 @@ import WaypointListView from '../view/waypoint-list.js';
 import NoWaypointView from '../view/no-waypoint.js';
 import FailedToLoadView from '../view/failed-to-load.js';
 import { remove, render } from '../framework/render.js';
-import { FilterType, SortType, UpdateType, UserAction } from '../const.js';
 import { filter, sort } from '../util.js';
+import { FilterType, SortType, UpdateType, UserAction } from '../const.js';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
@@ -35,7 +35,7 @@ export default class WaypointListPresenter {
   #newWaypointButton = null;
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
-    upperLimit: TimeLimit.UPPER_LIMIT
+    upperLimit: TimeLimit.UPPER_LIMIT,
   });
 
   constructor({
@@ -45,7 +45,6 @@ export default class WaypointListPresenter {
     sortModel,
     onNewWaypointDestroy,
     newWaypointButton,
-
   }) {
     this.#waypointListContainer = waypointListContainer;
     this.#waypointsModel = waypointsModel;
@@ -59,8 +58,6 @@ export default class WaypointListPresenter {
       onDataChange: this.#handleViewAction,
       onDestroy: this.#handleNewWaypointDestroy,
     });
-
-    this.#newWaypointButton.disabled = true;
 
     this.#waypointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -93,81 +90,13 @@ export default class WaypointListPresenter {
     this.#newWaypointPresenter.init({ offers, destinations });
   }
 
-  #handleModeChange = () => {
-    this.#newWaypointPresenter.destroy();
-    this.#waypointPresenters.forEach((presenter) => presenter.resetView());
-  };
-
-  #handleViewAction = async (actionType, updateType, update) => {
-    this.#uiBlocker.block();
-
-    switch (actionType) {
-      case UserAction.ADD_WAYPOINT:
-        this.#newWaypointPresenter.setSaving();
-        try {
-          await this.#waypointsModel.addWaypoint(updateType, update);
-        } catch(error) {
-          this.#newWaypointPresenter.setAborting();
-        }
-        break;
-      case UserAction.DELETE_WAYPOINT:
-        this.#waypointPresenters.get(update.id).setDeleting();
-        try {
-          await this.#waypointsModel.deleteWaypoint(updateType, update);
-        } catch(error) {
-          this.#waypointPresenters.get(update.id).setAborting();
-        }
-        break;
-      case UserAction.UPDATE_WAYPOINT:
-        this.#waypointPresenters.get(update.id).setSaving();
-        try {
-          await this.#waypointsModel.updateWaypoint(updateType, update);
-        } catch(error) {
-          this.#waypointPresenters.get(update.id).setAborting();
-        }
-        break;
-    }
-
-    this.#uiBlocker.unblock();
-  };
-
-  #handleModelEvent = (updateType, data) => {
-    switch (updateType) {
-      case UpdateType.PATCH:
-        this.#waypointPresenters.get(data.id).init({ waypoint: data });
-        break;
-      case UpdateType.MINOR:
-        this.#clearWaypointList();
-        this.#renderWaypointList();
-        break;
-      case UpdateType.MAJOR:
-        this.#clearWaypointList({ resetSortType: true });
-        this.#renderWaypointList();
-        break;
-      case UpdateType.INIT:
-        this.#isLoading = false;
-        remove(this.#loadingComponent);
-        this.#renderWaypointList();
-        if (!this.#waypointsModel.failedToLoad) {
-          this.#newWaypointButton.disabled = false;
-        }
-        break;
-    }
-  };
-
-  #handleNewWaypointDestroy = () => {
-    this.#clearWaypointList();
-    this.#renderWaypointList();
-    this.#newWaypointButton.disabled = false;
-  };
-
   #renderWaypointList() {
     if (this.#isLoading) {
       this.#renderLoading();
       return;
     }
 
-    if (this.#waypointsModel.failedToLoad) {
+    if (this.#waypointsModel.isFailedToLoad) {
       render(this.#failedToLoadComponent, this.#waypointListContainer);
       return;
     }
@@ -230,4 +159,83 @@ export default class WaypointListPresenter {
     waypointPresenter.init({ waypoint, offers, destinations });
     this.#waypointPresenters.set(waypoint.id, waypointPresenter);
   }
+
+  #handleModeChange = () => {
+    this.#newWaypointPresenter.destroy();
+    this.#waypointPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
+    switch (actionType) {
+      case UserAction.ADD_WAYPOINT:
+        this.#newWaypointPresenter.setSaving();
+        try {
+          await this.#waypointsModel.addWaypoint(updateType, update);
+        } catch (error) {
+          this.#newWaypointPresenter.setAborting();
+        }
+        break;
+      case UserAction.DELETE_WAYPOINT:
+        this.#waypointPresenters.get(update.id).setDeleting();
+        try {
+          await this.#waypointsModel.deleteWaypoint(updateType, update);
+        } catch (error) {
+          this.#waypointPresenters.get(update.id).setAborting();
+        }
+        break;
+      case UserAction.UPDATE_WAYPOINT:
+        this.#waypointPresenters.get(update.id).setSaving();
+        try {
+          await this.#waypointsModel.updateWaypoint(updateType, update);
+        } catch (error) {
+          this.#waypointPresenters.get(update.id).setAborting();
+        }
+        break;
+    }
+
+    this.#uiBlocker.unblock();
+  };
+
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#waypointPresenters.get(data.id).init({ waypoint: data });
+        break;
+      case UpdateType.MINOR:
+        this.#clearWaypointList();
+        this.#renderWaypointList();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearWaypointList({ resetSortType: true });
+        this.#renderWaypointList();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderWaypointList();
+        if (!this.#waypointsModel.isFailedToLoad) {
+          this.#newWaypointButton.disabled = false;
+          this.#newWaypointButton.addEventListener(
+            'click',
+            this.#newWaypointButtonClickHandler
+          );
+        }
+        break;
+    }
+  };
+
+  #handleNewWaypointDestroy = () => {
+    this.#clearWaypointList();
+    this.#renderWaypointList();
+    this.#newWaypointButton.disabled = false;
+  };
+
+  #newWaypointButtonClickHandler = (event) => {
+    event.preventDefault();
+
+    this.createWaypoint();
+    this.#newWaypointButton.disabled = true;
+  };
 }

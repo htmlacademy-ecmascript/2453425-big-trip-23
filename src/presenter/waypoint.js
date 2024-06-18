@@ -115,13 +115,18 @@ export default class WaypointPresenter {
     }
   }
 
-  #escKeyDownHandler = (event) => {
-    if (event.key === 'Escape' || event.key === 'Esc') {
-      event.preventDefault();
-      this.#waypointEditComponent.reset(this.#waypoint);
-      this.#replaceFormToCard();
-    }
-  };
+  #replaceCardToForm() {
+    replace(this.#waypointEditComponent, this.#waypointComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
+  }
+
+  #replaceFormToCard() {
+    replace(this.#waypointComponent, this.#waypointEditComponent);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
+  }
 
   #handleRollupClick = () => {
     if (this.#mode === Mode.DEFAULT) {
@@ -160,16 +165,11 @@ export default class WaypointPresenter {
     );
   };
 
-  #replaceCardToForm() {
-    replace(this.#waypointEditComponent, this.#waypointComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
-    this.#handleModeChange();
-    this.#mode = Mode.EDITING;
-  }
-
-  #replaceFormToCard() {
-    replace(this.#waypointComponent, this.#waypointEditComponent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-    this.#mode = Mode.DEFAULT;
-  }
+  #escKeyDownHandler = (event) => {
+    if (event.key === 'Escape' || event.key === 'Esc') {
+      event.preventDefault();
+      this.#waypointEditComponent.reset(this.#waypoint);
+      this.#replaceFormToCard();
+    }
+  };
 }

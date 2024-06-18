@@ -6,9 +6,9 @@ export default class WaypointsModel extends Observable {
   #waypoints = [];
   #offers = [];
   #destinations = [];
-  #failedToLoad = false;
+  #isFailedToLoad = false;
 
-  constructor({waypointApiService}) {
+  constructor({ waypointApiService }) {
     super();
     this.#waypointsApiService = waypointApiService;
   }
@@ -25,8 +25,8 @@ export default class WaypointsModel extends Observable {
     return this.#destinations;
   }
 
-  get failedToLoad() {
-    return this.#failedToLoad;
+  get isFailedToLoad() {
+    return this.#isFailedToLoad;
   }
 
   getOffersByType(type) {
@@ -47,11 +47,11 @@ export default class WaypointsModel extends Observable {
       this.#waypoints = waypoints.map(this.#adaptToClient);
       this.#offers = await this.#waypointsApiService.offers;
       this.#destinations = await this.#waypointsApiService.destinations;
-    } catch(error) {
+    } catch (error) {
       this.#waypoints = [];
       this.#offers = [];
       this.#destinations = [];
-      this.#failedToLoad = true;
+      this.#isFailedToLoad = true;
     }
     this._notify(UpdateType.INIT);
   }
@@ -76,8 +76,8 @@ export default class WaypointsModel extends Observable {
       ];
 
       this._notify(updateType, updatedWaypoint);
-    } catch(error) {
-      throw new Error('Con not update waypoint');
+    } catch (error) {
+      throw new Error('Can not update waypoint');
     }
   }
 
@@ -89,7 +89,7 @@ export default class WaypointsModel extends Observable {
       this.#waypoints = [newWaypoint, ...this.#waypoints];
 
       this._notify(updateType, newWaypoint);
-    } catch(error) {
+    } catch (error) {
       throw new Error('Can not add waypoint');
     }
   }
@@ -112,7 +112,7 @@ export default class WaypointsModel extends Observable {
       ];
 
       this._notify(updateType, update);
-    } catch(error) {
+    } catch (error) {
       throw new Error('Can not delete waypoint');
     }
   }
