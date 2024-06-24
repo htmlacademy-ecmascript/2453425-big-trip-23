@@ -1,4 +1,4 @@
-import TripInfoView from '../view/trip-info.js';
+import TripInfoView from '../view/trip-info-view.js';
 import { sort } from '../util.js';
 import { SortType } from '../const.js';
 import {

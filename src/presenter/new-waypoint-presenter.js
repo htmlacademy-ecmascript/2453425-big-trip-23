@@ -1,8 +1,8 @@
-import WaypointEditView from '../view/waypoint-edit.js';
+import WaypointEditView from '../view/waypoint-edit-view.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { UpdateType, UserAction } from '../const.js';
 
-export default class newWaypointPresenter {
+export default class NewWaypointPresenter {
   #waypointListComponent = null;
 
   #waypointEditComponent = null;
@@ -60,19 +60,23 @@ export default class newWaypointPresenter {
   }
 
   setSaving() {
-    this.#waypointEditComponent.updateElement({
-      isDisabled: true,
-      isSaving: true,
-    });
+    if (this.#waypointEditComponent?.isExistingInDOM) {
+      this.#waypointEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
   }
 
   setAborting() {
     const resetFormState = () => {
-      this.#waypointEditComponent.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false,
-      });
+      if (this.#waypointEditComponent?.isExistingInDOM) {
+        this.#waypointEditComponent.updateElement({
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false,
+        });
+      }
     };
 
     this.#waypointEditComponent.shake(resetFormState);

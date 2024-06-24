@@ -1,10 +1,10 @@
-import WaypointPresenter from './waypoint.js';
-import newWaypointPresenter from './new-waypoint-presenter.js';
+import WaypointPresenter from './waypoint-presenter.js';
+import NewWaypointPresenter from './new-waypoint-presenter.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
-import LoadingView from '../view/loading.js';
-import WaypointListView from '../view/waypoint-list.js';
-import NoWaypointView from '../view/no-waypoint.js';
-import FailedToLoadView from '../view/failed-to-load.js';
+import LoadingView from '../view/loading-view.js';
+import WaypointListView from '../view/waypoint-list-view.js';
+import NoWaypointView from '../view/no-waypoint-view.js';
+import FailedToLoadView from '../view/failed-to-load-view.js';
 import { remove, render } from '../framework/render.js';
 import { filter, sort } from '../util.js';
 import { FilterType, SortType, UpdateType, UserAction } from '../const.js';
@@ -52,7 +52,7 @@ export default class WaypointListPresenter {
     this.#sortModel = sortModel;
     this.onNewWaypointDestroy = onNewWaypointDestroy;
     this.#newWaypointButton = newWaypointButton;
-    this.#newWaypointPresenter = new newWaypointPresenter({
+    this.#newWaypointPresenter = new NewWaypointPresenter({
       waypointListComponent: this.#waypointListComponent,
       newWaypointButton: this.#newWaypointButton,
       onDataChange: this.#handleViewAction,
@@ -116,7 +116,6 @@ export default class WaypointListPresenter {
     if (resetSortType) {
       this.#sortModel.setSort(UpdateType.MINOR, SortType.DAY);
     }
-
     this.#newWaypointPresenter.destroy();
     this.#waypointPresenters.forEach((presenter) => presenter.destroy());
     this.#waypointPresenters.clear();

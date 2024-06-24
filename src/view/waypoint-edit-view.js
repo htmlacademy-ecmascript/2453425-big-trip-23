@@ -2,7 +2,6 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import he from 'he';
 import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
-import rangePlugin from 'flatpickr/dist/esm/plugins/rangePlugin.js';
 import 'flatpickr/dist/flatpickr.min.css';
 
 const BLANK_WAYPOINT = {
@@ -15,19 +14,26 @@ const BLANK_WAYPOINT = {
   type: 'flight',
 };
 
-const createEventTypeItemTemplate = (waypoint, eventType) =>
-  `<div class="event__type-item">
-    <input
-    id="event-type-${eventType}-1"
-    class="event__type-input
-    visually-hidden"
-    type="radio"
-    name="event-type"
-    value="${eventType}"
-    ${waypoint.isDisabled ? 'disabled' : ''}
-    >
-    <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType}</label>
-  </div>`;
+const createEventTypeItemTemplate = (waypoint, eventType) => {
+  const eventTypeName = eventType.replace(
+    eventType[0],
+    eventType[0].toUpperCase()
+  );
+
+  return `<div class="event__type-item">
+      <input
+      id="event-type-${eventType}-1"
+      class="event__type-input
+      visually-hidden"
+      type="radio"
+      name="event-type"
+      value="${eventType}"
+      ${waypoint.isDisabled ? 'disabled' : ''}
+      ${waypoint.type === eventType ? 'checked' : ''}
+      >
+      <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventTypeName}</label>
+    </div>`;
+};
 
 const createEventTypeItemsTemplate = (waypoint, eventTypes) =>
   eventTypes.reduce(
@@ -285,7 +291,8 @@ export default class WaypointEditView extends AbstractStatefulView {
   #handleRollupClick = null;
   #handleFormSubmit = null;
   #handleDeleteClick = null;
-  #datepicker = null;
+  #startDatepicker = null;
+  #endDatepicker = null;
 
   constructor({
     waypoint = BLANK_WAYPOINT,
@@ -315,12 +322,20 @@ export default class WaypointEditView extends AbstractStatefulView {
     );
   }
 
+  get isExistingInDOM() {
+    return Boolean(this.element.parentElement);
+  }
+
   removeElement() {
     super.removeElement();
 
-    if (this.#datepicker) {
-      this.#datepicker.destroy();
-      this.#datepicker = null;
+    if (this.#startDatepicker) {
+      this.#startDatepicker.destroy();
+      this.#startDatepicker = null;
+    }
+    if (this.#endDatepicker) {
+      this.#endDatepicker.destroy();
+      this.#endDatepicker = null;
     }
   }
 
@@ -354,23 +369,31 @@ export default class WaypointEditView extends AbstractStatefulView {
         .addEventListener('click', this.#rollupClickHandler);
     }
 
-    this.#setDatepicker();
+    this.#setStartDatepicker();
+    this.#setEndDatepicker();
   }
 
-  #setDatepicker() {
-    this.#datepicker = flatpickr(
+  #setStartDatepicker() {
+    this.#startDatepicker = flatpickr(
       this.element.querySelector('#event-start-time-1'),
       {
-        mode: 'range',
         dateFormat: 'd/m/y H:i',
         enableTime: true,
         'time_24hr': true,
-        onChange: this.#dateChangeHandler,
-        plugins: [
-          new rangePlugin({
-            input: this.element.querySelector('#event-end-time-1'),
-          }),
-        ],
+        onChange: this.#startDateChangeHandler,
+      }
+    );
+  }
+
+  #setEndDatepicker() {
+    this.#endDatepicker = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        enableTime: true,
+        'time_24hr': true,
+        minDate: this._state.dateFrom,
+        onChange: this.#endDateChangeHandler,
       }
     );
   }
@@ -429,10 +452,16 @@ export default class WaypointEditView extends AbstractStatefulView {
     this._setState({ basePrice: +event.target.value });
   };
 
-  #dateChangeHandler = ([startDate, endDate]) => {
+  #startDateChangeHandler = ([date]) => {
+    this.#endDatepicker.config.minDate = date;
     this._setState({
-      dateFrom: startDate,
-      dateTo: endDate,
+      dateFrom: date,
+    });
+  };
+
+  #endDateChangeHandler = ([date]) => {
+    this._setState({
+      dateTo: date,
     });
   };
 

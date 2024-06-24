@@ -1,7 +1,7 @@
 import { UpdateType, UserAction } from '../const.js';
 import { remove, render, replace } from '../framework/render.js';
-import WaypointEditView from '../view/waypoint-edit.js';
-import WaypointView from '../view/waypoint.js';
+import WaypointEditView from '../view/waypoint-edit-view.js';
+import WaypointView from '../view/waypoint-view.js';
 import { isDatesEqual } from '../util.js';
 
 const Mode = {
@@ -73,37 +73,46 @@ export default class WaypointPresenter {
   }
 
   destroy() {
+    if (this.#mode === Mode.EDITING) {
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
+    }
     remove(this.#waypointComponent);
     remove(this.#waypointEditComponent);
   }
 
   setSaving() {
-    this.#waypointEditComponent.updateElement({
-      isDisabled: true,
-      isSaving: true,
-    });
+    if (this.#waypointEditComponent?.isExistingInDOM) {
+      this.#waypointEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
   }
 
   setDeleting() {
-    this.#waypointEditComponent.updateElement({
-      isDisabled: true,
-      isDeleting: true,
-    });
+    if (this.#waypointEditComponent?.isExistingInDOM) {
+      this.#waypointEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
   }
 
   setAborting() {
+    const resetFormState = () => {
+      if (this.#waypointEditComponent?.isExistingInDOM) {
+        this.#waypointEditComponent.updateElement({
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false,
+        });
+      }
+    };
+
     if (this.#mode === Mode.DEFAULT) {
-      this.#waypointComponent.shake();
+      this.#waypointComponent.shake(resetFormState);
       return;
     }
-
-    const resetFormState = () => {
-      this.#waypointEditComponent.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false,
-      });
-    };
 
     this.#waypointEditComponent.shake(resetFormState);
   }
