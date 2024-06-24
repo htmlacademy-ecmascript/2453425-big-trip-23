@@ -7,19 +7,19 @@ export default class NewWaypointPresenter {
 
   #waypointEditComponent = null;
 
-  #newWaypointButton = null;
+  #newWaypointButtonComponent = null;
 
   #handleDataChange = null;
   #handleDestroy = null;
 
   constructor({
     waypointListComponent,
-    newWaypointButton,
+    newWaypointButtonComponent,
     onDataChange,
     onDestroy,
   }) {
     this.#waypointListComponent = waypointListComponent;
-    this.#newWaypointButton = newWaypointButton;
+    this.#newWaypointButtonComponent = newWaypointButtonComponent;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
   }
@@ -51,7 +51,7 @@ export default class NewWaypointPresenter {
       return;
     }
 
-    this.#newWaypointButton.disabled = false;
+    this.#newWaypointButtonComponent.enable();
 
     remove(this.#waypointEditComponent);
     this.#waypointEditComponent = null;

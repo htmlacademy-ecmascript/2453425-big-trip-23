@@ -44,7 +44,7 @@ const waypointListPresenter = new WaypointListPresenter({
   waypointsModel,
   filterModel,
   sortModel,
-  newWaypointButton: newWaypointButton,
+  newWaypointButton,
 });
 
 waypointListPresenter.init();

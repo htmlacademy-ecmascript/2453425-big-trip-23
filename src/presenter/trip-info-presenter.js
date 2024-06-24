@@ -22,7 +22,14 @@ export default class TripInfoPresenter {
   }
 
   init() {
+    const isFailedToLoadWaypoints = this.#waypointsModel.isFailedToLoad;
     const waypoints = this.#waypointsModel.waypoints;
+    const isNoWaypoints = waypoints.length === 0;
+
+    if (isFailedToLoadWaypoints || isNoWaypoints === 0) {
+      return;
+    }
+
     const sortedWaypoints = waypoints.sort(sort[SortType.DAY]);
 
     const reducedWaypoints = sortedWaypoints.map((waypoint) => {
