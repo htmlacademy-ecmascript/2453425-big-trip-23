@@ -1,10 +1,11 @@
-import WaypointPresenter from './waypoint.js';
-import newWaypointPresenter from './new-waypoint-presenter.js';
+import WaypointPresenter from './waypoint-presenter.js';
+import NewWaypointPresenter from './new-waypoint-presenter.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
-import LoadingView from '../view/loading.js';
-import WaypointListView from '../view/waypoint-list.js';
-import NoWaypointView from '../view/no-waypoint.js';
-import FailedToLoadView from '../view/failed-to-load.js';
+import LoadingView from '../view/loading-view.js';
+import WaypointListView from '../view/waypoint-list-view.js';
+import NoWaypointView from '../view/no-waypoint-view.js';
+import FailedToLoadView from '../view/failed-to-load-view.js';
+import NewWaypointButtonView from '../view/new-waypoint-button-view.js';
 import { remove, render } from '../framework/render.js';
 import { filter, sort } from '../util.js';
 import { FilterType, SortType, UpdateType, UserAction } from '../const.js';
@@ -27,6 +28,7 @@ export default class WaypointListPresenter {
   #loadingComponent = new LoadingView();
   #noWaypointComponent = new NoWaypointView();
   #failedToLoadComponent = new FailedToLoadView();
+  #newWaypointButtonComponent = null;
 
   #filterType = FilterType.EVERYTHING;
   #sortType = SortType.DAY;
@@ -52,9 +54,15 @@ export default class WaypointListPresenter {
     this.#sortModel = sortModel;
     this.onNewWaypointDestroy = onNewWaypointDestroy;
     this.#newWaypointButton = newWaypointButton;
-    this.#newWaypointPresenter = new newWaypointPresenter({
+
+    this.#newWaypointButtonComponent = new NewWaypointButtonView({
+      newEventButton: this.#newWaypointButton,
+      onNewEventButtonClick: this.#handleNewEventButtonClick,
+    });
+
+    this.#newWaypointPresenter = new NewWaypointPresenter({
       waypointListComponent: this.#waypointListComponent,
-      newWaypointButton: this.#newWaypointButton,
+      newWaypointButtonComponent: this.#newWaypointButtonComponent,
       onDataChange: this.#handleViewAction,
       onDestroy: this.#handleNewWaypointDestroy,
     });
@@ -73,6 +81,11 @@ export default class WaypointListPresenter {
     const sortedWaypoints = filteredWaypoints.sort(sort[this.#sortType]);
     return sortedWaypoints;
   }
+
+  #handleNewEventButtonClick = () => {
+    this.#newWaypointButtonComponent.disable();
+    this.createWaypoint();
+  };
 
   init() {
     this.#renderWaypointList();
@@ -116,7 +129,6 @@ export default class WaypointListPresenter {
     if (resetSortType) {
       this.#sortModel.setSort(UpdateType.MINOR, SortType.DAY);
     }
-
     this.#newWaypointPresenter.destroy();
     this.#waypointPresenters.forEach((presenter) => presenter.destroy());
     this.#waypointPresenters.clear();
@@ -216,11 +228,7 @@ export default class WaypointListPresenter {
         remove(this.#loadingComponent);
         this.#renderWaypointList();
         if (!this.#waypointsModel.isFailedToLoad) {
-          this.#newWaypointButton.disabled = false;
-          this.#newWaypointButton.addEventListener(
-            'click',
-            this.#newWaypointButtonClickHandler
-          );
+          this.#newWaypointButtonComponent.enable();
         }
         break;
     }
@@ -229,13 +237,6 @@ export default class WaypointListPresenter {
   #handleNewWaypointDestroy = () => {
     this.#clearWaypointList();
     this.#renderWaypointList();
-    this.#newWaypointButton.disabled = false;
-  };
-
-  #newWaypointButtonClickHandler = (event) => {
-    event.preventDefault();
-
-    this.createWaypoint();
-    this.#newWaypointButton.disabled = true;
+    this.#newWaypointButtonComponent.enable();
   };
 }

@@ -1,4 +1,5 @@
-import SortView from '../view/sort.js';
+import SortView from '../view/sort-view.js';
+import { filter } from '../util.js';
 import { SortItem, SortType, UpdateType } from '../const.js';
 import {
   remove,
@@ -11,13 +12,17 @@ export default class SortPresenter {
   #sortContainer = null;
 
   #sortModel = null;
+  #filterModel = null;
   #waypointsModel = null;
 
   #sortComponent = null;
 
-  constructor({ sortContainer, sortModel, waypointsModel }) {
+  #isLoading = true;
+
+  constructor({ sortContainer, sortModel, filterModel, waypointsModel }) {
     this.#sortContainer = sortContainer;
     this.#sortModel = sortModel;
+    this.#filterModel = filterModel;
     this.#waypointsModel = waypointsModel;
 
     this.#waypointsModel.addObserver(this.#handleModelEvent);
@@ -33,6 +38,10 @@ export default class SortPresenter {
   }
 
   init() {
+    if (this.#isLoading) {
+      return;
+    }
+
     const sortTypes = this.sortTypes;
     const sortItems = this.sortItems;
     const prevSortComponent = this.#sortComponent;
@@ -72,12 +81,20 @@ export default class SortPresenter {
     this.#sortModel.setSort(UpdateType.MINOR, sortType);
   };
 
-  #handleModelEvent = () => {
-    const waypointsLength = this.#waypointsModel.waypoints.length;
-    if (waypointsLength === 0) {
+  #handleModelEvent = (updateType) => {
+    const waypoints = this.#waypointsModel.waypoints;
+    const filteredWaypoints = filter[this.#filterModel.filter](waypoints);
+    const filteredWaypointsLength = filteredWaypoints.length;
+
+    if (filteredWaypointsLength === 0) {
       this.remove();
       return;
     }
+
+    if (updateType === UpdateType.INIT) {
+      this.#isLoading = false;
+    }
+
     this.init();
   };
 }

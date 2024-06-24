@@ -13,7 +13,7 @@ const createNoWaypointTemplate = (filterType = 'everything') => {
   return `<p class="trip-events__msg">${noWaypointTextValue}</p>`;
 };
 
-export default class LoadingView extends AbstractView {
+export default class NoWaypointView extends AbstractView {
   #filterType = FilterType.EVERYTHING;
 
   setFilterType(filterType) {

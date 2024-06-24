@@ -1,10 +1,10 @@
-import SortPresenter from './presenter/sort.js';
-import WaypointListPresenter from './presenter/waypoint-list.js';
-import WaypointsModel from './model/waypoints.js';
-import TripInfoPresenter from './presenter/trip-info.js';
-import FilterPresenter from './presenter/filter.js';
-import FilterModel from './model/filter.js';
-import SortModel from './model/sort.js';
+import SortPresenter from './presenter/sort-presenter.js';
+import WaypointListPresenter from './presenter/waypoint-list-presenter.js';
+import WaypointsModel from './model/waypoints-model.js';
+import TripInfoPresenter from './presenter/trip-info-presenter.js';
+import FilterPresenter from './presenter/filter-presenter.js';
+import FilterModel from './model/filter-model.js';
+import SortModel from './model/sort-model.js';
 import WaypointApiService from './waypoint-api-service.js';
 
 const END_POINT = 'https://23.objects.htmlacademy.pro/big-trip';
@@ -35,6 +35,7 @@ const filterPresenter = new FilterPresenter({
 const sortPresenter = new SortPresenter({
   sortContainer: siteMainElement,
   sortModel,
+  filterModel,
   waypointsModel,
 });
 
@@ -43,7 +44,7 @@ const waypointListPresenter = new WaypointListPresenter({
   waypointsModel,
   filterModel,
   sortModel,
-  newWaypointButton: newWaypointButton,
+  newWaypointButton,
 });
 
 waypointListPresenter.init();
